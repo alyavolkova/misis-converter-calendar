@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processing App</title>
+</head>
+<body>
+    <h1>File Processing App</h1>
+
+    <form id="uploadForm">
+        <label for="fileInput">Choose a file:</label>
+        <input type="file" id="fileInput" name="file" accept=".docx">
+        <button type="button" onclick="uploadFile()">Upload File</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <button type="button" onclick="downloadProcessedFile()">Download Processed File</button>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('http://localhost:8000/processing_docs', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            document.getElementById('responseMessage').innerText = `File "${data.filename}" uploaded and processed successfully.`;
+        }
+
+        async function downloadProcessedFile() {
+            const response = await fetch('http://localhost:8000/download_processed_file');
+            const blob = await response.blob();
+
+            // Create a link element and trigger the download
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'processed_file.docx';
+            link.click();
+        }
+    </script>
+</body>
+</html>
